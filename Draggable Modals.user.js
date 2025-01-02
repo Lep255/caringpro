@@ -5,8 +5,8 @@
 // @description  Make specific modals draggable.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    
-// @downloadURL  
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Draggable%20Modals.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Draggable%20Modals.user.js
 // @grant        none
 // ==/UserScript==
 
