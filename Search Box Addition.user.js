@@ -5,8 +5,8 @@
 // @description  Add a search box to highlight rows in the table dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    
-// @downloadURL  
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Search%20Box%20Addition.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Search%20Box%20Addition.user.js
 // @grant        none
 // ==/UserScript==
 
