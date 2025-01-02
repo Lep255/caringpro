@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manual Wrench
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      5.1
 // @description  Enhance visibility of manual visits
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
