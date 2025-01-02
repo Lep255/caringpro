@@ -5,8 +5,8 @@
 // @description  Make the patient info and actions sections sticky on scroll.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    
-// @downloadURL  
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Sticky%20Patient%20Info%20&%20Action.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Sticky%20Patient%20Info%20&%20Action.user.js
 // @grant        none
 // ==/UserScript==
 
