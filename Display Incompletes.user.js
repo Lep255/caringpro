@@ -5,6 +5,8 @@
 // @description  Change display:none to display:block and highlight text in red if "Incomplete" is present
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    
+// @downloadURL  
 // @grant        none
 // ==/UserScript==
 
