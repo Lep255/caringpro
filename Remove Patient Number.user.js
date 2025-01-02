@@ -5,8 +5,8 @@
 // @description  Remove phone number from patient names in the header dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    
-// @downloadURL  
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Remove%20Patient%20Number.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Remove%20Patient%20Number.user.js
 // @grant        none
 // ==/UserScript==
 
