@@ -5,6 +5,8 @@
 // @description  Automatically check the show notes checkbox on aide schedules
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    
+// @downloadURL  
 // @grant        none
 // ==/UserScript==
 
