@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Title Changes
 // @namespace    http://tampermonkey.net/
-// @version      5.1
+// @version      5.2
 // @description  Change document titles based on modal and section names dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
