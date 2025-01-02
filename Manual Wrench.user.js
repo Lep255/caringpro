@@ -5,6 +5,8 @@
 // @description  Enhance visibility of manual visits
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Manual%20Wrench.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Manual%20Wrench.user.js
 // @grant        none
 // ==/UserScript==
 
