@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Highlighting Time Difference
 // @namespace    http://tampermonkey.net/
-// @version      4.1
+// @version      0.1
 // @description  Highlights time in red if X (from X/Y format) is under 15 minutes, and in orange if more than 7 minutes are missing from total.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
