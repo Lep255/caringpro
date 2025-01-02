@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display "Incomplete"
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      5.0
 // @description  Change display:none to display:block and highlight text in red if "Incomplete" is present
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
