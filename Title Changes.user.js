@@ -5,6 +5,8 @@
 // @description  Change document titles based on modal and section names dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    
+// @downloadURL  
 // @grant        none
 // ==/UserScript==
 
