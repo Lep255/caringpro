@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Draggable Modals
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      5.0
 // @description  Make specific modals draggable.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
