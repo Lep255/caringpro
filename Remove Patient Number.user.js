@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Remove Patient Phone Number
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      5.0
 // @description  Remove phone number from patient names in the header dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
