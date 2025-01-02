@@ -5,6 +5,8 @@
 // @description  Add and replace CSS styles for elements
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    
+// @downloadURL  
 // @grant        GM_addStyle
 // ==/UserScript==
 
