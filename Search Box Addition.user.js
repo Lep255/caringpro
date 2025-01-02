@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Search Box Addition
 // @namespace    http://tampermonkey.net/
-// @version      5.1
+// @version      5.2
 // @description  Add a search box to highlight rows in the table dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
