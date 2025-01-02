@@ -5,8 +5,8 @@
 // @description  Highlights time in red if X (from X/Y format) is under 15 minutes, and in orange if more than 7 minutes are missing from total.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    
-// @downloadURL  
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Highlighting%20Time%20Difference.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Highlighting%20Time%20Difference.user.js
 // @grant        none
 // ==/UserScript==
 
