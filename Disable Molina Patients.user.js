@@ -6,8 +6,8 @@
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/Lep255/caringpro/main/Disable%20Molina%20Patients.user.js
-// @downloadURL  https://raw.githubusercontent.com/Lep255/caringpro/main/Disable%20Molina%20Patients.user.js
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Disable%20Molina%20Patients.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Disable%20Molina%20Patients.user.js
 // ==/UserScript==
 
 (function () {
