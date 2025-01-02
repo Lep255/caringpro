@@ -5,8 +5,8 @@
 // @description  Change document titles based on modal and section names dynamically within modal header conditionally displayed after delay
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    https://github.com/Lep255/caringpro/blob/main/Title%20Changes.user.js
-// @downloadURL  https://github.com/Lep255/caringpro/blob/main/Title%20Changes.user.js
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Title%20Changes.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Title%20Changes.user.js
 // @grant        none
 // ==/UserScript==
 
