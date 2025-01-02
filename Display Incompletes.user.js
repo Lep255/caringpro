@@ -5,8 +5,8 @@
 // @description  Change display:none to display:block and highlight text in red if "Incomplete" is present
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
-// @updateURL    
-// @downloadURL  
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Display%20Incompletes.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Display%20Incompletes.user.js
 // @grant        none
 // ==/UserScript==
 
