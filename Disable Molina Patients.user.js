@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Disable Molina Patients
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  Disable specific blocks and allow enabling with a consent checkbox based on a list of names
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
