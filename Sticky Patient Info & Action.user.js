@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Sticky Patient Info and Actions
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      5.1
 // @description  Make the patient info and actions sections sticky on scroll.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
