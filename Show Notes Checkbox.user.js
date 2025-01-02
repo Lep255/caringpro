@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Show Notes Checkbox
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      0.1
 // @description  Automatically check the show notes checkbox on aide schedules
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
