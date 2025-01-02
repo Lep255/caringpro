@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Extra Time Color
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      0.1
 // @description  Add and replace CSS styles for elements
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
