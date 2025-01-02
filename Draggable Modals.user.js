@@ -5,6 +5,8 @@
 // @description  Make specific modals draggable.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    
+// @downloadURL  
 // @grant        none
 // ==/UserScript==
 
