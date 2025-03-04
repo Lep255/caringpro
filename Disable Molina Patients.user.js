@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Disable Molina/Sunshine
 // @namespace    http://tampermonkey.net/
-// @version      5.7
+// @version      5.8
 // @description  Disable specific blocks and allow enabling with a consent checkbox based on a list of names
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -41,7 +41,7 @@
     'OLGA GARCIA', 'OLGA NAVARRO', 'OLGAMARBEL HERNANDEZ ACOSTA', 'PETRONILA CHAVIANO', 'RAMON A. ARCIS',
     'REYNALDO FERNANDEZ', 'RICARDO AMADOR', 'ROSA SARDINA', 'RUBBY CASTILLO', 'SARA PEREZ',
     'SERGIO CORDERO', 'SILVIA PITA ARCE', 'TERESA AMARO', 'THERESA SMITH', 'TOMAS ROBAINA TEJEDA',
-    'WILIANS HERNANDEZ', 'YOLANDA SUAREZ', 'ZENAIDA MOJENA', 'ZENAIDA PICALLO SERRA'
+    'WILIANS HERNANDEZ', ''XIOMARA DOMINGUEZ, 'YOLANDA SUAREZ', 'ZENAIDA MOJENA', 'ZENAIDA PICALLO SERRA'
     ];
 
     const otherNames = [
