@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Disable Molina/Sunshine
 // @namespace    http://tampermonkey.net/
-// @version      5.10
+// @version      5.11
 // @description  Disable specific blocks and allow enabling with a consent checkbox based on a list of names
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -16,7 +16,7 @@
     const targetNames = [
     'ADA SUAREZ', 'ADIS LOPEZ LEYVA', 'AMPARO DIAZ PENA', 'ANDREA BORGES VILLEGAS', 'ANGEL SANZ',
     'BERTHA ESCOBAR', 'CARMELINA CORDERO FONTE', 'CATALINA WONG SUAREZ', 'CLARA CEA', 'CLAUDIO OVES',
-    'CONSUELO CORTES', 'CONSUELO ROQUE', 'ELDA RUENES GONZALEZ', 'ELISA OVES', 'ESTRELLA VELAZQUEZ',
+    'CONSUELO CORTES', 'CONSUELO ROQUE', 'DIOSELINA MAZO', 'ELDA RUENES GONZALEZ', 'ELISA OVES', 'ESTRELLA VELAZQUEZ',
     'EVA DE ARMAS', 'EVA RODRIGUEZ RODRIGUEZ', 'GLADYS FERNANDEZ ALEMA', 'GLADYS GOMEZ', 'HERIBERTA ALEMAN',
     'ISABEL FUENTES', 'JESUS FERRER', 'JORGE STURLA MIRABAL', 'JUANA RODRIGUEZ', 'LEONILO ROJAS BLANCO',
     'LUCAS MARIN GUTIERREZ', 'LUCELLY VELEZ', 'MARIA AGUINAGA', 'MARIA BALLESTER', 'MARIA DIAZ',
