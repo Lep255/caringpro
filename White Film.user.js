@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Inactivity White Film Overlay
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1
 // @description  Add a white film overlay to the page after 10 seconds of inactivity
 // @author       You
-// @match        *://*/*
+// @match        https://caringpro.inmyteam.com/*
 // @grant        none
 // @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/White%20Film.user.js
-// @downloadURL   https://github.com/Lep255/caringpro/raw/refs/heads/main/White%20Film.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/White%20Film.user.js
 // ==/UserScript==
  
 (function() {
