@@ -6,6 +6,8 @@
 // @author       You
 // @match        *://*/*
 // @grant        none
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/White%20Film.user.js
+// @downloadURL   https://github.com/Lep255/caringpro/raw/refs/heads/main/White%20Film.user.js
 // ==/UserScript==
  
 (function() {
