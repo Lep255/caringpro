@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Draggable Modals
 // @namespace    http://tampermonkey.net/
-// @version      5.2
+// @version      5.3
 // @description  Make specific modals draggable.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -29,6 +29,12 @@
         modalHeader.addEventListener('mousedown', (e) => {
             const closeButton = modalHeader.querySelector('.close');
             const ignoredSpan = modalHeader.querySelector('span[ng-if="vm.customer != {}"]');
+            const modalTitle = modal.querySelector('.modal-title.ng-binding');
+
+            // Prevent dragging if the click is inside the modal title (text area)
+            if (modalTitle && modalTitle.contains(e.target)) {
+                return;  // Do nothing, effectively disabling drag on text area
+            }
 
             if ((closeButton && closeButton.contains(e.target)) ||
                 (ignoredSpan && ignoredSpan.contains(e.target))) {
