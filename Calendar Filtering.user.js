@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         Calendar Filtering
 // @namespace    http://tampermonkey.net/
-// @version      2.6
+// @version      2.7
 // @description  Filtering for aide/patient sections.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
 // @grant        none
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Calendar%20Filtering.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Calendar%20Filtering.user.js
 // ==/UserScript==
 
 (function () {
