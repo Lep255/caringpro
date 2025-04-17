@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Sticky Patient Info and Actions
 // @namespace    http://tampermonkey.net/
-// @version      5.2
+// @version      5.3
 // @description  Make the patient info and actions sections sticky on scroll.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -56,7 +56,6 @@
                     for (let rule of rules) {
                         if (rule.selectorText === '.w-100') {
                             rule.style.setProperty('width', '101.346%', 'important');
-                            console.log('.w-100 rule modified to width: 101.346% !important;');
                             return;
                         }
                     }
