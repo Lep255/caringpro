@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Disable Molina/Sunshine
 // @namespace    http://tampermonkey.net/
-// @version      6.1
-// @description  Disables form controls for Sunshine/Molina patients;
+// @version      6.5
+// @description  Disables form controls for Sunshine/Molina patients and shows insurance line under status block for all patients;
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
 // @grant        none
@@ -30,13 +30,28 @@
                     input.style.pointerEvents = 'none';
                     input.style.opacity = '0.5';
                 });
-                console.log(`[BLOCKED] Disabled input section due to Molina/Sunshine match`);
             }
         });
 
         if (existingLabel) {
             addConsentCheckbox(existingLabel);
         }
+    }
+
+    function insertInsuranceLine(name) {
+        const statusDiv = document.querySelector('div[ng-if="vm.ownStatus"]');
+        if (!statusDiv) return;
+
+        const existingInsuranceDiv = document.querySelector('.insurance-note');
+        if (existingInsuranceDiv) return;
+
+        const insuranceDiv = document.createElement('div');
+        insuranceDiv.className = 'insurance-note';
+        insuranceDiv.style.marginTop = '4px';
+        insuranceDiv.style.fontWeight = 'bold';
+        insuranceDiv.textContent = `Insurance: ${name}`;
+
+        statusDiv.insertAdjacentElement('afterend', insuranceDiv);
     }
 
     function addConsentCheckbox(existingLabel) {
@@ -64,7 +79,6 @@
                 const blocks = document.querySelectorAll('.consent-required');
                 blocks.forEach(block => {
                     const inputs = block.querySelectorAll('input, button, select, textarea');
-
                     inputs.forEach(input => {
                         input.disabled = !checkbox.checked;
                         input.style.pointerEvents = checkbox.checked ? 'auto' : 'none';
@@ -72,8 +86,6 @@
                     });
                 });
             });
-
-            console.log('Consent checkbox added (red).');
         }
     }
 
@@ -85,13 +97,12 @@
             const name = json?.result?.visit?.insuranceCompanyName?.toUpperCase();
             if (!name) return;
 
+            insertInsuranceLine(name);
+
             if (name.includes("MOLINA") || name.includes("SUNSHINE")) {
-                console.log(`[MATCH] Triggering disable for: ${name}`);
                 disableRelevantBlocks();
             }
-        } catch (err) {
-            console.error("Error parsing GetForEdit JSON:", err);
-        }
+        } catch (_) {}
     };
 
     // Intercept fetch
@@ -121,13 +132,12 @@
                     const name = json?.result?.visit?.insuranceCompanyName?.toUpperCase();
                     if (!name) return;
 
+                    insertInsuranceLine(name);
+
                     if (name.includes("MOLINA") || name.includes("SUNSHINE")) {
-                        console.log(`[MATCH] Triggering disable for: ${name}`);
                         disableRelevantBlocks();
                     }
-                } catch (err) {
-                    console.error("Error parsing GetForEdit XHR:", err);
-                }
+                } catch (_) {}
             }
         });
         return originalSend.apply(this, args);
