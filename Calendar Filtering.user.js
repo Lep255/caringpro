@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Calendar Filtering
 // @namespace    http://tampermonkey.net/
-// @version      2.7
+// @version      2.9
 // @description  Filtering for aide/patient sections.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -16,14 +16,11 @@
   const normalizeName = (name) =>
     name.replace(/patient\s*:\s*/i, '').trim().toLowerCase();
 
-  let activeView = null; // 'contacts' or 'customers'
+  let activeView = null;
 
-  /** Shared: Add toggle if not already in toolbar */
   function addIncMissToggle(toolbarSelector, toggleId, callback) {
     const toolbar = document.querySelector(toolbarSelector);
-    if (!toolbar) return;
-
-    if (toolbar.querySelector(`#${toggleId}`)) return;
+    if (!toolbar || toolbar.querySelector(`#${toggleId}`)) return;
 
     const label = document.createElement('label');
     label.className =
@@ -38,7 +35,6 @@
     label.querySelector('input').addEventListener('change', callback);
   }
 
-  /** CONTACTS */
   function handleContactSection() {
     if (activeView === 'contacts') return;
     activeView = 'contacts';
@@ -116,7 +112,6 @@
     updateContacts();
   }
 
-  /** CUSTOMERS */
   function handleCustomerSection() {
     if (activeView === 'customers') return;
     activeView = 'customers';
@@ -183,20 +178,21 @@
     updateCustomers();
   }
 
-  /** DETECT ACTIVE VIEW */
   function detectWhichView() {
-  const contactRoot = document.querySelector('div[ng-if="vm.patients.length>0"]');
-  const customerRoot = document.querySelector('.accordion#accordionExample3');
+    const hash = window.location.hash;
+    if (!hash.startsWith('#/contacts') && !hash.startsWith('#/customers')) return;
 
-  if (contactRoot && !customerRoot && activeView !== 'contacts') {
-    activeView = null;
-    handleContactSection();
-  } else if (customerRoot && !contactRoot && activeView !== 'customers') {
-    activeView = null;
-    handleCustomerSection();
+    const contactRoot = document.querySelector('div[ng-if="vm.patients.length>0"]');
+    const customerRoot = document.querySelector('.accordion#accordionExample3');
+
+    if (contactRoot && !customerRoot && activeView !== 'contacts') {
+      activeView = null;
+      handleContactSection();
+    } else if (customerRoot && !contactRoot && activeView !== 'customers') {
+      activeView = null;
+      handleCustomerSection();
+    }
   }
-}
-
 
   const initObserver = new MutationObserver(detectWhichView);
   initObserver.observe(document.body, { childList: true, subtree: true });
