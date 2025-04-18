@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Disable Molina/Sunshine
+// @name         Disable Molina/Sunshine/LH
 // @namespace    http://tampermonkey.net/
-// @version      6.5
+// @version      6.7
 // @description  Disables form controls for Sunshine/Molina patients and shows insurance line under status block for all patients;
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -33,8 +33,33 @@
             }
         });
 
+        waitForLabelAndAddCheckbox();
+
+    }
+
+    function waitForElementsToExistAndRun(retries = 15) {
+    const targetLabel = document.querySelector(
+        'label.kt-checkbox.kt-checkbox--brand.ng-binding.ng-scope[ng-if="!isMissed.value"]'
+    );
+    const targetBlocks = document.querySelectorAll('div.d-flex > label.kt-radio.kt-radio--bold');
+
+        if (targetLabel && targetBlocks.length > 0) {
+            disableRelevantBlocks();
+            addConsentCheckbox(targetLabel);
+        } else if (retries > 0) {
+            setTimeout(() => waitForElementsToExistAndRun(retries - 1), 300);
+        }
+    }
+
+
+    function waitForLabelAndAddCheckbox(retries = 10) {
+    const existingLabel = document.querySelector(
+        'label.kt-checkbox.kt-checkbox--brand.ng-binding.ng-scope[ng-if="!isMissed.value"]'
+    );
         if (existingLabel) {
             addConsentCheckbox(existingLabel);
+        } else if (retries > 0) {
+            setTimeout(() => waitForLabelAndAddCheckbox(retries - 1), 300);
         }
     }
 
@@ -69,7 +94,7 @@
             checkbox.type = 'checkbox';
 
             label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(' Adjust Sunshine/Molina patient'));
+            label.appendChild(document.createTextNode(' Adjust Sunshine/Molina/L.H. patient'));
             label.appendChild(document.createElement('span'));
 
             container.appendChild(label);
@@ -99,8 +124,8 @@
 
             insertInsuranceLine(name);
 
-            if (name.includes("MOLINA") || name.includes("SUNSHINE")) {
-                disableRelevantBlocks();
+            if (name.includes("MOLINA") || name.includes("SUNSHINE") || name.includes("LITTLE")) {
+                waitForElementsToExistAndRun();
             }
         } catch (_) {}
     };
@@ -134,8 +159,8 @@
 
                     insertInsuranceLine(name);
 
-                    if (name.includes("MOLINA") || name.includes("SUNSHINE")) {
-                        disableRelevantBlocks();
+                    if (name.includes("MOLINA") || name.includes("SUNSHINE") || name.includes("LITTLE")) {
+                        waitForElementsToExistAndRun();
                     }
                 } catch (_) {}
             }
