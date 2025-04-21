@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Display "Incomplete"
 // @namespace    http://tampermonkey.net/
-// @version      5.2
+// @version      5.3
 // @description  Change display:none to display:block and highlight text in red if "Incomplete" is present
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -17,22 +17,20 @@
         // Find all elements with style="display:none;"
         var hiddenElements = document.querySelectorAll('[style*="display:none;"]');
         hiddenElements.forEach(function(el) {
-            // Change display:none to display:block
             el.style.display = 'block';
 
-            // Check if the element contains the word "Incomplete" in a related context
-            var parentElement = el.closest('span'); // Adjust if necessary to find the right parent element
+            // Check if the element contains the word "Incomplete"
+            var parentElement = el.closest('span');
             if (parentElement && parentElement.innerHTML.includes('Incomplete')) {
-                // If "Incomplete" is found, change the text color to red
                 el.style.color = 'red';
             }
         });
     }
 
-    // Set interval to periodically check for hidden elements and update display and text color conditionally
+    // Periodically check for hidden elements
     setInterval(showHiddenElements, 1000);
 
-    // Observer to react to DOM changes and update display and text color conditionally
+    // Observer to react to DOM changes
     var observerConfig = { childList: true, subtree: true };
     var observer = new MutationObserver(function(mutationsList) {
         for (var mutation of mutationsList) {
