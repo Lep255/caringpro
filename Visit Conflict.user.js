@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         Visit Conflict
 // @namespace    http://tampermonkey.net/
-// @version      2.3
-// @description  Testing...
+// @version      2.5
+// @description  Highlights entire event block within 3 hours.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Visit%20Conflict.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Visit%20Conflict.user.js
 // @grant        none
 // ==/UserScript==
 
@@ -32,7 +34,6 @@
             const start = parseDate(actualStartDateTime);
             const end = parseDate(actualEndDateTime);
 
-            // Skip invalid
             if (!contactId || !visitId || !start || !end) return;
             if (!isValidBillingCode(v)) return;
 
@@ -41,10 +42,10 @@
         });
 
         for (const contactId in byContact) {
-            const list = byContact[contactId];
-            for (let i = 0; i < list.length; i++) {
-                for (let j = i + 1; j < list.length; j++) {
-                    const a = list[i], b = list[j];
+            const group = byContact[contactId];
+            for (let i = 0; i < group.length; i++) {
+                for (let j = i + 1; j < group.length; j++) {
+                    const a = group[i], b = group[j];
                     if (
                         areDatesClose(a.start, b.start) ||
                         areDatesClose(a.start, b.end) ||
@@ -59,7 +60,7 @@
         }
     }
 
-    function highlightActionBars() {
+    function highlightEventBlocks() {
         document.querySelectorAll("button[ng-click^='editVisit($event,']").forEach(button => {
             const match = button.getAttribute("ng-click").match(/editVisit\(\$event,'([a-f0-9-]+)'\)/);
             if (!match) return;
@@ -67,15 +68,9 @@
             const visitId = match[1];
             if (!conflictVisitIds.has(visitId)) return;
 
-            const container = button.closest("a.fc-day-grid-event");
-            if (!container) return;
-
-            const actionsBar = container.querySelector(".actions");
-            if (actionsBar) {
-                actionsBar.style.border = "2px solid red";
-                actionsBar.style.borderRadius = "6px";
-                actionsBar.style.padding = "4px";
-                actionsBar.style.boxShadow = "0 0 6px rgba(255,0,0,0.6)";
+            const eventBlock = button.closest("a.fc-day-grid-event");
+            if (eventBlock) {
+                eventBlock.style.boxShadow = "0 0 0 3px red, 0 0 6px rgba(0, 0, 0, 1)";
             }
         });
     }
@@ -91,12 +86,12 @@
 
         if (visits.length > 0) {
             analyzeVisits(visits);
-            highlightActionBars();
+            highlightEventBlocks();
         }
     }
 
     const observer = new MutationObserver(() => {
-        if (conflictVisitIds.size > 0) highlightActionBars();
+        if (conflictVisitIds.size > 0) highlightEventBlocks();
     });
 
     observer.observe(document.body, {
