@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Calendar Filtering
 // @namespace    http://tampermonkey.net/
-// @version      2.9
+// @version      3.0
 // @description  Filtering for aide/patient sections.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -116,10 +116,13 @@
     if (activeView === 'customers') return;
     activeView = 'customers';
 
+    const checkboxContainer = document.querySelector(
+      '.kt-checkbox.kt-checkbox--brand-inline.px-3.py-1'
+    );
+
     function getUncheckedStaffNames() {
-      return Array.from(
-        document.querySelectorAll('label.kt-checkbox input[type="checkbox"]')
-      )
+      if (!checkboxContainer) return [];
+      return Array.from(checkboxContainer.querySelectorAll('input[type="checkbox"]'))
         .filter(cb => !cb.checked)
         .map(cb => normalizeName(cb.parentElement?.textContent || ''));
     }
@@ -149,8 +152,9 @@
     }
 
     function bindStaffCheckboxes() {
-      document
-        .querySelectorAll('label.kt-checkbox input[type="checkbox"]')
+      if (!checkboxContainer) return;
+      checkboxContainer
+        .querySelectorAll('input[type="checkbox"]')
         .forEach(cb => {
           if (cb.dataset.bound) return;
           cb.addEventListener('change', updateCustomerEventVisibility);
