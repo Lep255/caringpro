@@ -1,200 +1,131 @@
 // ==UserScript==
-// @name         Calendar Filtering
+// @name         Visit Conflict
 // @namespace    http://tampermonkey.net/
-// @version      3.1
-// @description  Filtering for aide/patient sections.
+// @version      2.5
+// @description  Highlights entire event block within 3 hours.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Visit%20Conflict.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Visit%20Conflict.user.js
 // @grant        none
-// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Calendar%20Filtering.user.js
-// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Calendar%20Filtering.user.js
 // ==/UserScript==
 
 (function () {
-  'use strict';
+    'use strict';
 
-  const normalizeName = (name) =>
-    name.replace(/patient\s*:\s*/i, '').trim().toLowerCase();
+    const MAX_HOUR_DIFF = 3;
+    const VALID_BILLING_CODES = ['G0156', 'T1021'];
+    const conflictVisitIds = new Set();
 
-  let activeView = null;
+    const parseDate = str => str ? new Date(str) : null;
+    const areDatesClose = (d1, d2) =>
+        Math.abs(d1 - d2) <= MAX_HOUR_DIFF * 60 * 60 * 1000;
 
-  function addIncMissToggle(toolbarSelector, toggleId, callback) {
-    const toolbar = document.querySelector(toolbarSelector);
-    if (!toolbar || toolbar.querySelector(`#${toggleId}`)) return;
-
-    const label = document.createElement('label');
-    label.className =
-      'kt-checkbox kt-checkbox--brand align-self-center kt-margin-r-20 text-nowrap';
-    label.innerHTML = `
-      <input type="checkbox" id="${toggleId}">
-      Inc/Miss
-      <span></span>
-    `;
-
-    toolbar.insertBefore(label, toolbar.firstChild);
-    label.querySelector('input').addEventListener('change', callback);
-  }
-
-  function handleContactSection() {
-    if (activeView === 'contacts') return;
-    activeView = 'contacts';
-
-    function getUncheckedPatientNames() {
-      return Array.from(document.querySelectorAll('input.patient-checkbox'))
-        .filter(cb => !cb.checked)
-        .map(cb => normalizeName(cb.nextElementSibling?.textContent || ''));
+    function isValidBillingCode(visit) {
+        const segments = visit.segments || [];
+        return segments.some(seg => VALID_BILLING_CODES.includes(seg.billingCode));
     }
 
-    function addCheckboxToPatient(span) {
-      if (span.querySelector('input.patient-checkbox')) return;
+    function analyzeVisits(visits) {
+        const byContact = {};
 
-      const nameSpan = span.querySelector('span.ng-binding');
-      const anchor = span.querySelector('a[ng-click]');
-      if (!nameSpan || !anchor) return;
+        visits.forEach(v => {
+            const { contactId, visitId, actualStartDateTime, actualEndDateTime } = v;
+            const start = parseDate(actualStartDateTime);
+            const end = parseDate(actualEndDateTime);
 
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = true;
-      checkbox.className = 'patient-checkbox';
-      checkbox.style.marginRight = '5px';
+            if (!contactId || !visitId || !start || !end) return;
+            if (!isValidBillingCode(v)) return;
 
-      checkbox.addEventListener('change', () => {
-        nameSpan.style.opacity = checkbox.checked ? '1' : '0.5';
-        updateContactEventVisibility();
-      });
+            if (!byContact[contactId]) byContact[contactId] = [];
+            byContact[contactId].push({ visitId, start, end });
+        });
 
-      anchor.parentElement.insertBefore(checkbox, anchor);
+        for (const contactId in byContact) {
+            const group = byContact[contactId];
+            for (let i = 0; i < group.length; i++) {
+                for (let j = i + 1; j < group.length; j++) {
+                    const a = group[i], b = group[j];
+                    if (
+                        areDatesClose(a.start, b.start) ||
+                        areDatesClose(a.start, b.end) ||
+                        areDatesClose(a.end, b.start) ||
+                        areDatesClose(a.end, b.end)
+                    ) {
+                        conflictVisitIds.add(a.visitId);
+                        conflictVisitIds.add(b.visitId);
+                    }
+                }
+            }
+        }
     }
 
-    function updateContactEventVisibility() {
-      const unchecked = getUncheckedPatientNames();
-      const showIncluded = document.querySelector('#inc_miss_toggle_contacts')?.checked ?? false;
+    function highlightEventBlocks() {
+        document.querySelectorAll("button[ng-click^='editVisit($event,']").forEach(button => {
+            const match = button.getAttribute("ng-click").match(/editVisit\(\$event,'([a-f0-9-]+)'\)/);
+            if (!match) return;
 
-      document.querySelectorAll('td.fc-event-container').forEach(td => {
-        if (td.querySelector('.fc-contentCalendarNote')) return;
+            const visitId = match[1];
+            if (!conflictVisitIds.has(visitId)) return;
 
-        const title = td.querySelector('.fc-title');
-        if (!title) return;
-
-        const raw = title.textContent || '';
-        const isPatientEvent = /^patient\s*:/i.test(raw);
-        if (!isPatientEvent) return;
-
-        const name = normalizeName(raw);
-        const hiddenByName = unchecked.some(n => name.includes(n));
-        const hiddenByStatus = showIncluded && ['paid out', 'completed', 'billed', 'released', 'upcoming'].some(w =>
-          raw.toLowerCase().includes(w)
-        );
-
-        td.style.visibility = hiddenByName || hiddenByStatus ? 'hidden' : '';
-      });
-    }
-
-    function addContactIncMissToggle() {
-      addIncMissToggle(
-        '.d-flex.justify-content-end.align-content-center',
-        'inc_miss_toggle_contacts',
-        updateContactEventVisibility
-      );
-    }
-
-    function updateContacts() {
-      document
-        .querySelectorAll('span[ng-repeat*="patient in vm.patients"]')
-        .forEach(addCheckboxToPatient);
-      updateContactEventVisibility();
-      addContactIncMissToggle();
-    }
-
-    const contactObserver = new MutationObserver(updateContacts);
-    contactObserver.observe(document.body, { childList: true, subtree: true });
-
-    updateContacts();
-  }
-
-  function handleCustomerSection() {
-    if (activeView === 'customers') return;
-    activeView = 'customers';
-
-    function getUncheckedStaffNames() {
-      return Array.from(
-        document.querySelectorAll('.kt-checkbox.kt-checkbox--brand-inline.px-3.py-1 input[type="checkbox"]')
-      )
-        .filter(cb => !cb.checked)
-        .map(cb => normalizeName(cb.parentElement?.textContent || ''));
-    }
-
-    function updateCustomerEventVisibility() {
-      const unchecked = getUncheckedStaffNames();
-      const showIncluded = document.querySelector('#inc_miss_toggle_customers')?.checked ?? false;
-
-      document.querySelectorAll('td.fc-event-container').forEach(td => {
-        if (td.querySelector('.fc-contentCalendarNote')) return;
-
-        const title = td.querySelector('.fc-title');
-        if (!title) return;
-
-        const raw = title.textContent || '';
-        const isPatientEvent = /^patient\s*:/i.test(raw);
-        if (isPatientEvent) return;
-
-        const name = normalizeName(raw);
-        const hiddenByName = unchecked.some(n => name.includes(n));
-        const hiddenByStatus = showIncluded && ['paid out', 'completed', 'billed', 'released', 'upcoming'].some(w =>
-          raw.toLowerCase().includes(w)
-        );
-
-        td.style.visibility = hiddenByName || hiddenByStatus ? 'hidden' : '';
-      });
-    }
-
-    function bindStaffCheckboxes() {
-      document
-        .querySelectorAll('.kt-checkbox.kt-checkbox--brand-inline.px-3.py-1 input[type="checkbox"]')
-        .forEach(cb => {
-          if (cb.dataset.bound) return;
-          cb.addEventListener('change', updateCustomerEventVisibility);
-          cb.dataset.bound = 'true';
+            const eventBlock = button.closest("a.fc-day-grid-event");
+            if (eventBlock) {
+                eventBlock.style.boxShadow = "0 0 0 3px red, 0 0 6px rgba(0, 0, 0, 1)";
+            }
         });
     }
 
-    function addCustomerIncMissToggle() {
-      addIncMissToggle(
-        '.d-flex.justify-content-end.align-content-center',
-        'inc_miss_toggle_customers',
-        updateCustomerEventVisibility
-      );
+    function handleScheduleResponse(json) {
+        let visits = [];
+
+        if (Array.isArray(json?.result)) {
+            visits = json.result;
+        } else if (Array.isArray(json?.result?.data)) {
+            visits = json.result.data;
+        }
+
+        if (visits.length > 0) {
+            analyzeVisits(visits);
+            highlightEventBlocks();
+        }
     }
 
-    function updateCustomers() {
-      bindStaffCheckboxes();
-      updateCustomerEventVisibility();
-      addCustomerIncMissToggle();
-    }
+    const observer = new MutationObserver(() => {
+        if (conflictVisitIds.size > 0) highlightEventBlocks();
+    });
 
-    const customerObserver = new MutationObserver(updateCustomers);
-    customerObserver.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
-    updateCustomers();
-  }
+    const originalFetch = window.fetch;
+    window.fetch = function (...args) {
+        return originalFetch.apply(this, args).then(response => {
+            const url = response.url;
+            if (url.includes("GetContactSchedule") || url.includes("GetPatientSchedule")) {
+                response.clone().json().then(handleScheduleResponse).catch(() => {});
+            }
+            return response;
+        });
+    };
 
-  function detectWhichView() {
-    const hash = window.location.hash;
-    if (!hash.startsWith('#/contacts') && !hash.startsWith('#/customers')) return;
+    const originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        this._url = url;
+        return originalOpen.call(this, method, url, ...rest);
+    };
 
-    const contactRoot = document.querySelector('div[ng-if="vm.patients.length>0"]');
-    const customerRoot = document.querySelector('.accordion#accordionExample3');
-
-    if (contactRoot && !customerRoot && activeView !== 'contacts') {
-      activeView = null;
-      handleContactSection();
-    } else if (customerRoot && !contactRoot && activeView !== 'customers') {
-      activeView = null;
-      handleCustomerSection();
-    }
-  }
-
-  const initObserver = new MutationObserver(detectWhichView);
-  initObserver.observe(document.body, { childList: true, subtree: true });
-  detectWhichView();
+    const originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function (...args) {
+        this.addEventListener("load", function () {
+            if (this._url && (this._url.includes("GetContactSchedule") || this._url.includes("GetPatientSchedule"))) {
+                try {
+                    const json = JSON.parse(this.responseText);
+                    handleScheduleResponse(json);
+                } catch (_) {}
+            }
+        });
+        return originalSend.apply(this, args);
+    };
 })();
