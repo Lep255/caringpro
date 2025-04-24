@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Visit Conflict
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      2.6
 // @description  Highlights entire event block within 3 hours.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -27,38 +27,40 @@
     }
 
     function analyzeVisits(visits) {
-        const byContact = {};
+    const byEntity = {}; // could be customer.id or customerName string
+    visits.forEach(v => {
+        const entityKey = v.customer?.id || v.customerName?.trim().toUpperCase();
+        const visitId = v.visitId;
+        const start = parseDate(v.actualStartDateTime);
+        const end = parseDate(v.actualEndDateTime);
 
-        visits.forEach(v => {
-            const { contactId, visitId, actualStartDateTime, actualEndDateTime } = v;
-            const start = parseDate(actualStartDateTime);
-            const end = parseDate(actualEndDateTime);
+        if (!entityKey || !visitId || !start || !end) return;
+        if (!isValidBillingCode(v)) return;
 
-            if (!contactId || !visitId || !start || !end) return;
-            if (!isValidBillingCode(v)) return;
+        if (!byEntity[entityKey]) byEntity[entityKey] = [];
+        byEntity[entityKey].push({ visitId, start, end });
+    });
 
-            if (!byContact[contactId]) byContact[contactId] = [];
-            byContact[contactId].push({ visitId, start, end });
-        });
-
-        for (const contactId in byContact) {
-            const group = byContact[contactId];
-            for (let i = 0; i < group.length; i++) {
-                for (let j = i + 1; j < group.length; j++) {
-                    const a = group[i], b = group[j];
-                    if (
-                        areDatesClose(a.start, b.start) ||
-                        areDatesClose(a.start, b.end) ||
-                        areDatesClose(a.end, b.start) ||
-                        areDatesClose(a.end, b.end)
-                    ) {
-                        conflictVisitIds.add(a.visitId);
-                        conflictVisitIds.add(b.visitId);
-                    }
+    for (const entityKey in byEntity) {
+        const group = byEntity[entityKey];
+        for (let i = 0; i < group.length; i++) {
+            for (let j = i + 1; j < group.length; j++) {
+                const a = group[i], b = group[j];
+                if (
+                    areDatesClose(a.start, b.start) ||
+                    areDatesClose(a.start, b.end) ||
+                    areDatesClose(a.end, b.start) ||
+                    areDatesClose(a.end, b.end)
+                ) {
+                    conflictVisitIds.add(a.visitId);
+                    conflictVisitIds.add(b.visitId);
                 }
             }
         }
     }
+}
+
+
 
     function highlightEventBlocks() {
         document.querySelectorAll("button[ng-click^='editVisit($event,']").forEach(button => {
