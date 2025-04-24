@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Calendar Filtering
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  Filtering for aide/patient sections.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
