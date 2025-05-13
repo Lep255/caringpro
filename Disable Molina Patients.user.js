@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Disable Molina/Sunshine
+// @name         Disable Molina/Sunshine/LH
 // @namespace    http://tampermonkey.net/
-// @version      6.8
+// @version      6.9
 // @description  Disables form controls for Sunshine/Molina patients and shows insurance line under status block for all patients;
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -94,7 +94,7 @@
             checkbox.type = 'checkbox';
 
             label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(' Adjust Sunshine/Molina patient'));
+            label.appendChild(document.createTextNode(' Adjust Sunshine/Molina/L.H. patient'));
             label.appendChild(document.createElement('span'));
 
             container.appendChild(label);
@@ -124,7 +124,7 @@
 
             insertInsuranceLine(name);
 
-            if (name.includes("MOLINA") || name.includes("SUNSHINE")) {
+            if (name.includes("MOLINA") || name.includes("SUNSHINE") || name.includes("LITTLE HAVANA")) {
                 waitForElementsToExistAndRun();
             }
         } catch (_) {}
@@ -159,7 +159,7 @@
 
                     insertInsuranceLine(name);
 
-                    if (name.includes("MOLINA") || name.includes("SUNSHINE")) {
+                    if (name.includes("MOLINA") || name.includes("SUNSHINE") || name.includes("LITTLE HAVANA")) {
                         waitForElementsToExistAndRun();
                     }
                 } catch (_) {}
