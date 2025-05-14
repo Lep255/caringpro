@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Disable Molina/Sunshine/LH
+// @name         Disable Molina/Sunshine
 // @namespace    http://tampermonkey.net/
 // @version      6.9
 // @description  Disables form controls for Sunshine/Molina patients and shows insurance line under status block for all patients;
