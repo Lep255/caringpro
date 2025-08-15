@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Calendar Filtering
 // @namespace    http://tampermonkey.net/
-// @version      3.1
+// @version      3.2
 // @description  Filtering for aide/patient sections.
 // @author       You
 // @match        https://caringpro.inmyteam.com/*
@@ -67,28 +67,36 @@
     }
 
     function updateContactEventVisibility() {
-      const unchecked = getUncheckedPatientNames();
-      const showIncluded = document.querySelector('#inc_miss_toggle_contacts')?.checked ?? false;
+  const unchecked = getUncheckedPatientNames();
+  const showIncluded = document.querySelector('#inc_miss_toggle_contacts')?.checked ?? false;
 
-      document.querySelectorAll('td.fc-event-container').forEach(td => {
-        if (td.querySelector('.fc-contentCalendarNote')) return;
+  document.querySelectorAll('td.fc-event-container').forEach(td => {
+    if (td.querySelector('.fc-contentCalendarNote')) return;
 
-        const title = td.querySelector('.fc-title');
-        if (!title) return;
+    const title = td.querySelector('.fc-title');
+    if (!title) return;
 
-        const raw = title.textContent || '';
-        const isPatientEvent = /^patient\s*:/i.test(raw);
-        if (!isPatientEvent) return;
+    const raw = title.textContent || '';
+    const isPatientEvent = /^patient\s*:/i.test(raw);
+    if (!isPatientEvent) return;
 
-        const name = normalizeName(raw);
-        const hiddenByName = unchecked.some(n => name.includes(n));
-        const hiddenByStatus = showIncluded && ['paid out', 'completed', 'billed', 'released', 'upcoming'].some(w =>
-          raw.toLowerCase().includes(w)
-        );
+    const name = normalizeName(raw);
+    const hiddenByName = unchecked.some(n => name.includes(n));
+    const hiddenByStatus = showIncluded && ['paid out', 'completed', 'billed', 'released', 'upcoming'].some(w =>
+      raw.toLowerCase().includes(w)
+    );
 
-        td.style.visibility = hiddenByName || hiddenByStatus ? 'hidden' : '';
-      });
+    const anchor = td.querySelector('a.fc-day-grid-event');
+    if (!anchor) return;
+
+    if (hiddenByName || hiddenByStatus) {
+      anchor.setAttribute('hidden', '');
+    } else {
+      anchor.removeAttribute('hidden');
     }
+  });
+}
+
 
     function addContactIncMissToggle() {
       addIncMissToggle(
@@ -125,28 +133,36 @@
     }
 
     function updateCustomerEventVisibility() {
-      const unchecked = getUncheckedStaffNames();
-      const showIncluded = document.querySelector('#inc_miss_toggle_customers')?.checked ?? false;
+  const unchecked = getUncheckedStaffNames();
+  const showIncluded = document.querySelector('#inc_miss_toggle_customers')?.checked ?? false;
 
-      document.querySelectorAll('td.fc-event-container').forEach(td => {
-        if (td.querySelector('.fc-contentCalendarNote')) return;
+  document.querySelectorAll('td.fc-event-container').forEach(td => {
+    if (td.querySelector('.fc-contentCalendarNote')) return;
 
-        const title = td.querySelector('.fc-title');
-        if (!title) return;
+    const title = td.querySelector('.fc-title');
+    if (!title) return;
 
-        const raw = title.textContent || '';
-        const isPatientEvent = /^patient\s*:/i.test(raw);
-        if (isPatientEvent) return;
+    const raw = title.textContent || '';
+    const isPatientEvent = /^patient\s*:/i.test(raw);
+    if (isPatientEvent) return;
 
-        const name = normalizeName(raw);
-        const hiddenByName = unchecked.some(n => name.includes(n));
-        const hiddenByStatus = showIncluded && ['paid out', 'completed', 'billed', 'released', 'upcoming'].some(w =>
-          raw.toLowerCase().includes(w)
-        );
+    const name = normalizeName(raw);
+    const hiddenByName = unchecked.some(n => name.includes(n));
+    const hiddenByStatus = showIncluded && ['paid out', 'completed', 'billed', 'released', 'upcoming'].some(w =>
+      raw.toLowerCase().includes(w)
+    );
 
-        td.style.visibility = hiddenByName || hiddenByStatus ? 'hidden' : '';
-      });
+    const anchor = td.querySelector('a.fc-day-grid-event');
+    if (!anchor) return;
+
+    if (hiddenByName || hiddenByStatus) {
+      anchor.setAttribute('hidden', '');
+    } else {
+      anchor.removeAttribute('hidden');
     }
+  });
+}
+
 
     function bindStaffCheckboxes() {
       document
