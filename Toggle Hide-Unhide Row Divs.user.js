@@ -4,6 +4,8 @@
 // @version      1.4
 // @description  Hide/unhide specific divs with toggle option in Actions dropdown
 // @match        https://caringpro.inmyteam.com/*
+// @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Toggle%20Hide-Unhide%20Row%20Divs.user.js
+// @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Toggle%20Hide-Unhide%20Row%20Divs.user.js
 // @grant        none
 // ==/UserScript==
 
