@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Show Notes Checkbox
+// @name         Show Notes Checkbox (Conditional)
 // @namespace    http://tampermonkey.net/
-// @version      5.2
-// @description  Automatically check the show notes checkbox on aide schedules
+// @version      5.5
+// @description  Click Show Notes only if present and blockUI is gone
 // @author       You
-// @match        https://caringpro.inmyteam.com/*
+// @match        https://*.inmyteam.com/*
 // @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Show%20Notes%20Checkbox.user.js
 // @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Show%20Notes%20Checkbox.user.js
 // @grant        none
@@ -13,22 +13,21 @@
 (function() {
     'use strict';
 
-    function checkShowNotesCheckbox() {
-        var labels = document.querySelectorAll('.d-flex label.kt-checkbox--brand');
-        labels.forEach(function(label) {
-            if (label.textContent.includes('Show Notes')) {
-                var checkbox = label.querySelector('input[type="checkbox"]');
-                if (checkbox && !checkbox.checked) {
-                    checkbox.checked = true;
-                    checkbox.dispatchEvent(new Event('click'));
-                }
+    function clickShowNotesIfReady() {
+        const blockUIExists = document.querySelector('.blockUI') !== null;
+        const showNotesLabel = Array.from(document.querySelectorAll('.d-flex label.kt-checkbox--brand'))
+            .find(label => label.textContent.includes('Show Notes'));
+
+        if (!blockUIExists && showNotesLabel) {
+            const checkbox = showNotesLabel.querySelector('input[type="checkbox"]');
+            if (checkbox && !checkbox.checked) {
+                checkbox.checked = true;
+                checkbox.dispatchEvent(new Event('click'));
+                console.log('Show Notes checkbox clicked');
             }
-        });
+        }
     }
 
-    function periodicallyCheckElement() {
-        setInterval(checkShowNotesCheckbox, 1000);
-    }
-
-    periodicallyCheckElement();
+    // Poll every 500ms for readiness
+    setInterval(clickShowNotesIfReady, 500);
 })();
