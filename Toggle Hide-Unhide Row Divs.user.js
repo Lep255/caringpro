@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Toggle Hide/Unhide Row Divs
+// @name         Toggle Hide/Unhide Row Divs (Contacts Only)
 // @namespace    http://tampermonkey.net/
-// @version      1.4
-// @description  Hide/unhide specific divs with toggle option in Actions dropdown
+// @version      1.6
+// @description  Hide/unhide specific divs with toggle option in Actions dropdown on contacts page only
 // @match        https://caringpro.inmyteam.com/*
 // @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Toggle%20Hide-Unhide%20Row%20Divs.user.js
 // @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Toggle%20Hide-Unhide%20Row%20Divs.user.js
@@ -19,9 +19,14 @@
     ];
 
     let hiddenEnabled = true; // default: hide active
+    let toggleItem = null;
+
+    function isContactsPage() {
+        return window.location.hash.includes('/contacts');
+    }
 
     function hideRows() {
-        if (!hiddenEnabled) return;
+        if (!hiddenEnabled || !isContactsPage()) return;
         classesToHide.forEach(cls => {
             const selector = 'div.' + cls.trim().split(/\s+/).join('.');
             document.querySelectorAll(`${selector}:not([hidden])`).forEach(el => {
@@ -31,6 +36,7 @@
     }
 
     function unhideRows() {
+        if (!isContactsPage()) return;
         classesToHide.forEach(cls => {
             const selector = 'div.' + cls.trim().split(/\s+/).join('.');
             document.querySelectorAll(`${selector}[hidden]`).forEach(el => {
@@ -50,18 +56,26 @@
         }
     }
 
-    let toggleItem = null;
-
     function addToggleOption() {
-        const menu = document.querySelector('.dropdown-menu[aria-labelledby="dropdownMenuButton"]');
-        if (menu && !menu.querySelector('.toggle-hide-item')) {
+        if (!isContactsPage()) return;
+
+        // Strictly select the Actions button dropdown
+        const actionsButton = document.querySelector('button#dropdownMenuButton.btn.btn-brand.dropdown-toggle');
+        if (!actionsButton) return;
+
+        const menu = actionsButton.nextElementSibling; // the dropdown-menu immediately after the button
+        if (!menu || !menu.classList.contains('dropdown-menu')) return;
+
+        if (!menu.querySelector('.toggle-hide-item')) {
             toggleItem = document.createElement('a');
             toggleItem.className = 'dropdown-item toggle-hide-item';
             toggleItem.href = 'javascript:;';
             toggleItem.textContent = 'Unhide hidden rows';
             toggleItem.addEventListener('click', toggleHideUnhide);
 
-            menu.appendChild(document.createElement('div')).className = 'dropdown-divider';
+            const divider = document.createElement('div');
+            divider.className = 'dropdown-divider';
+            menu.appendChild(divider);
             menu.appendChild(toggleItem);
         }
     }
