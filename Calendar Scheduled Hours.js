@@ -1,9 +1,11 @@
 // ==UserScript==
-// @name         Calendar Scheduled Hours (network-based)
+// @name         Calendar Scheduled Hours (network-based, precise)
 // @namespace    http://tampermonkey.net/
-// @version      1.5
-// @description  Sum scheduled hours per day from GetContactSchedule and append to FullCalendar day numbers
+// @version      1.6
+// @description  Sum scheduled hours per day from GetContactSchedule and append to FullCalendar day numbers (rounded to 0.25h increments)
 // @match        https://*.inmyteam.com/*
+// @updateURL    https://raw.githubusercontent.com/Lep255/caringpro/refs/heads/main/Calendar%20Scheduled%20Hours.js
+// @downloadURL  https://raw.githubusercontent.com/Lep255/caringpro/refs/heads/main/Calendar%20Scheduled%20Hours.js
 // @grant        none
 // ==/UserScript==
 
@@ -21,22 +23,17 @@
     return `${y}-${m}-${day}`;
   };
 
-  // Keep the latest computed totals and signature to avoid double-work
+  // Keep latest computed totals
   let latestTotals = {};
-  let lastSignature = '';
 
-  // Extract an array of visits from common shapes
+  // Extract visits from common wrappers
   function extractVisits(json) {
     if (!json) return [];
     if (Array.isArray(json)) return json;
-
-    // Common wrappers used by this app
     if (Array.isArray(json.result)) return json.result;
     if (Array.isArray(json.result?.data)) return json.result.data;
     if (Array.isArray(json.data)) return json.data;
     if (Array.isArray(json.events)) return json.events;
-
-    // As a fallback: search shallow keys for an array of objects with scheduledStartDateTime
     for (const k in json) {
       const v = json[k];
       if (Array.isArray(v) && v.length && typeof v[0] === 'object' && ('scheduledStartDateTime' in v[0] || 'start' in v[0])) {
@@ -46,12 +43,15 @@
     return [];
   }
 
-  // ONLY scheduled hours
+  // Round to nearest 0.25
+  const roundQuarter = hrs => Math.round(hrs * 4) / 4;
+
+  // ONLY scheduled hours, in 0.25 increments
   function computeTotalsFromScheduled(visits) {
     const totals = {};
     for (const v of visits) {
-      const sStr = v.scheduledStartDateTime; // strictly scheduled
-      const eStr = v.scheduledEndDateTime;   // strictly scheduled
+      const sStr = v.scheduledStartDateTime;
+      const eStr = v.scheduledEndDateTime;
       if (!sStr || !eStr) continue;
 
       const start = new Date(sStr);
@@ -59,8 +59,9 @@
       if (isNaN(start) || isNaN(end)) continue;
 
       let hrs = (end - start) / (1000 * 60 * 60);
-      // if the end is after midnight and browser parsed weirdly
       if (hrs < 0) hrs += 24;
+
+      hrs = roundQuarter(hrs);
 
       const dateKey = ymdLocal(start);
       totals[dateKey] = (totals[dateKey] || 0) + hrs;
@@ -68,7 +69,7 @@
     return totals;
   }
 
-  // Find the day-number element for a date (supports common FullCalendar DOMs)
+  // Find the day-number element
   function findDayNumberEl(dateKey) {
     return (
       document.querySelector(`.fc-day-top[data-date="${dateKey}"] .fc-day-number`) ||
@@ -82,15 +83,12 @@
       const el = findDayNumberEl(dateKey);
       if (!el) return;
 
-      // keep original text once
       const base = el.getAttribute('data-original') || el.textContent.replace(/\s*\(.*\)$/, '');
       el.setAttribute('data-original', base);
 
-      // write "(X.Xh)" next to the date
-      const suffix = ` (${hours.toFixed(1)}h)`;
+      const suffix = ` (${hours.toFixed(2)}h)`;
       el.textContent = base + suffix;
 
-      // color rule
       el.style.color = hours > 16 ? 'red' : '';
     });
   }
@@ -99,20 +97,15 @@
     if (Object.keys(latestTotals).length) applyTotals(latestTotals);
   }, 80);
 
-  // Handle JSON text from fetch/xhr once fully loaded
+  // Handle JSON text from network
   function handleScheduleText(text) {
-    // de-dupe exact payload to avoid reprocessing
-    const sig = text.length + ':' + text.slice(0, 1024);
-    if (sig === lastSignature) return;
-    lastSignature = sig;
-
     try {
       const json = JSON.parse(text);
       const visits = extractVisits(json);
       if (!visits.length) return;
 
       latestTotals = computeTotalsFromScheduled(visits);
-      applyTotalsDebounced();  // non-blocking UI update
+      applyTotalsDebounced(); // update UI
     } catch (_) { /* ignore non-JSON */ }
   }
 
@@ -141,17 +134,17 @@
     if (this.__tm_url && (this.__tm_url.includes('GetContactSchedule') || this.__tm_url.includes('GetPatientSchedule'))) {
       this.addEventListener('load', function () {
         if (this.status >= 200 && this.status < 300 && typeof this.responseText === 'string') {
-          handleScheduleText(this.responseText); // after fully loaded
+          handleScheduleText(this.responseText);
         }
       });
     }
     return origSend.apply(this, args);
   };
 
-  // ---- Re-apply when the calendar DOM changes (modals, nav, redraws) ----
+  // ---- Re-apply when DOM changes ----
   const mo = new MutationObserver(applyTotalsDebounced);
   mo.observe(document.body, { childList: true, subtree: true });
 
-  // Also try periodically (non-blocking)
+  // Also periodically
   setInterval(applyTotalsDebounced, 2000);
 })();
