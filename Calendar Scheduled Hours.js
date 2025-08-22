@@ -1,8 +1,9 @@
 // ==UserScript==
-// @name         Calendar Scheduled Hours (optimized, quarter-hour display)
+// @name         Calendar Scheduled Hours
 // @namespace    http://tampermonkey.net/
-// @version      1.8
-// @description  Sum scheduled hours per day and append to FullCalendar day numbers (display :00, :15, :30, :45), optimized for performance
+// @version      2.0
+// @description  Sum scheduled hours per day
+// @author       You
 // @match        https://*.inmyteam.com/*
 // @updateURL    https://github.com/Lep255/caringpro/raw/refs/heads/main/Calendar%20Scheduled%20Hours.js
 // @downloadURL  https://github.com/Lep255/caringpro/raw/refs/heads/main/Calendar%20Scheduled%20Hours.js
