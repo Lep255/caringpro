@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Calendar Scheduled Hours (network-based, precise)
+// @name         Calendar Scheduled Hours (optimized, quarter-hour display)
 // @namespace    http://tampermonkey.net/
-// @version      1.6
-// @description  Sum scheduled hours per day from GetContactSchedule and append to FullCalendar day numbers (rounded to 0.25h increments)
+// @version      1.8
+// @description  Sum scheduled hours per day and append to FullCalendar day numbers (display :00, :15, :30, :45), optimized for performance
 // @match        https://*.inmyteam.com/*
 // @updateURL    https://raw.githubusercontent.com/Lep255/caringpro/refs/heads/main/Calendar%20Scheduled%20Hours.js
 // @downloadURL  https://raw.githubusercontent.com/Lep255/caringpro/refs/heads/main/Calendar%20Scheduled%20Hours.js
@@ -12,10 +12,11 @@
 (function () {
   'use strict';
 
-  // ----- small utils -----
-  const debounce = (fn, ms = 100) => {
-    let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  const debounce = (fn, ms = 150) => {
+    let t;
+    return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
   };
+
   const ymdLocal = d => {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -23,10 +24,8 @@
     return `${y}-${m}-${day}`;
   };
 
-  // Keep latest computed totals
   let latestTotals = {};
 
-  // Extract visits from common wrappers
   function extractVisits(json) {
     if (!json) return [];
     if (Array.isArray(json)) return json;
@@ -43,10 +42,19 @@
     return [];
   }
 
-  // Round to nearest 0.25
-  const roundQuarter = hrs => Math.round(hrs * 4) / 4;
+  const roundQuarterHour = hrs => Math.round(hrs * 4) / 4;
 
-  // ONLY scheduled hours, in 0.25 increments
+  const formatQuarterHour = hrs => {
+    const full = Math.floor(hrs);
+    const fraction = hrs - full;
+    let suffix = '';
+    if (fraction === 0.25) suffix = ':15';
+    else if (fraction === 0.5) suffix = ':30';
+    else if (fraction === 0.75) suffix = ':45';
+    else suffix = ':00';
+    return full + suffix;
+  };
+
   function computeTotalsFromScheduled(visits) {
     const totals = {};
     for (const v of visits) {
@@ -61,7 +69,7 @@
       let hrs = (end - start) / (1000 * 60 * 60);
       if (hrs < 0) hrs += 24;
 
-      hrs = roundQuarter(hrs);
+      hrs = roundQuarterHour(hrs);
 
       const dateKey = ymdLocal(start);
       totals[dateKey] = (totals[dateKey] || 0) + hrs;
@@ -69,7 +77,6 @@
     return totals;
   }
 
-  // Find the day-number element
   function findDayNumberEl(dateKey) {
     return (
       document.querySelector(`.fc-day-top[data-date="${dateKey}"] .fc-day-number`) ||
@@ -77,27 +84,33 @@
     );
   }
 
-  // Apply totals next to each day number; red if >16h
+  // Track what is currently displayed to avoid redundant updates
+  const displayedTotals = {};
+
   function applyTotals(totals) {
     Object.entries(totals).forEach(([dateKey, hours]) => {
       const el = findDayNumberEl(dateKey);
       if (!el) return;
 
+      const formatted = formatQuarterHour(hours);
+
+      // Only update if different
+      if (displayedTotals[dateKey] === formatted) return;
+
       const base = el.getAttribute('data-original') || el.textContent.replace(/\s*\(.*\)$/, '');
       el.setAttribute('data-original', base);
 
-      const suffix = ` (${hours.toFixed(2)}h)`;
-      el.textContent = base + suffix;
-
+      el.textContent = base + ` (${formatted}h)`;
       el.style.color = hours > 16 ? 'red' : '';
+
+      displayedTotals[dateKey] = formatted;
     });
   }
 
   const applyTotalsDebounced = debounce(() => {
     if (Object.keys(latestTotals).length) applyTotals(latestTotals);
-  }, 80);
+  }, 100);
 
-  // Handle JSON text from network
   function handleScheduleText(text) {
     try {
       const json = JSON.parse(text);
@@ -105,11 +118,10 @@
       if (!visits.length) return;
 
       latestTotals = computeTotalsFromScheduled(visits);
-      applyTotalsDebounced(); // update UI
-    } catch (_) { /* ignore non-JSON */ }
+      applyTotalsDebounced();
+    } catch (_) {}
   }
 
-  // ---- Intercept fetch ----
   const _fetch = window.fetch;
   window.fetch = function (...args) {
     return _fetch.apply(this, args).then(res => {
@@ -121,7 +133,6 @@
     });
   };
 
-  // ---- Intercept XHR ----
   const origOpen = XMLHttpRequest.prototype.open;
   const origSend = XMLHttpRequest.prototype.send;
 
@@ -141,10 +152,19 @@
     return origSend.apply(this, args);
   };
 
-  // ---- Re-apply when DOM changes ----
-  const mo = new MutationObserver(applyTotalsDebounced);
+  // Only observe for significant DOM changes
+  const mo = new MutationObserver(mutations => {
+    let changed = false;
+    for (const m of mutations) {
+      if (m.addedNodes.length || m.removedNodes.length) {
+        changed = true;
+        break;
+      }
+    }
+    if (changed) applyTotalsDebounced();
+  });
   mo.observe(document.body, { childList: true, subtree: true });
 
-  // Also periodically
-  setInterval(applyTotalsDebounced, 2000);
+  // Periodic update in case fetch/XHR was missed
+  setInterval(applyTotalsDebounced, 3000);
 })();
